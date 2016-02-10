@@ -29,13 +29,13 @@ module ResponseType
 
     def self.required_fields_for(type)
         return REQUIRED_KEYS[type] if ResponseType::RawValues::TYPES.include?(type)
-        nil
+        REQUIRED_KEYS[RawValues::UNKNOWN]
     end
 
     def self.message_type_of?(message_hash, type)
         required_fields = ResponseType::required_fields_for(type)
-        return false if required_fields.nil?
 
+        return (type == RawValues::UNKNOWN) if required_fields.empty?
         (required_fields.map { |e| e.to_s }).sort == message_hash.keys.sort
     end
 end
@@ -50,7 +50,6 @@ class Hash
                 return type
             end
         }
-        nil
     end
 
     def message_type_of?(type)
@@ -58,6 +57,7 @@ class Hash
     end
 
     def to_model()
+        # If not cached
         if @message_type.nil?
             type = self.message_type
             if type.nil?
