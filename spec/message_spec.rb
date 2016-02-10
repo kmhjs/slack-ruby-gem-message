@@ -1,4 +1,4 @@
-require_relative '../slack-ruby-gem-message.rb'
+require_relative '../lib/slack-ruby-gem-message.rb'
 
 RSpec.describe 'Message' do
     it 'data specified as unknown message' do
