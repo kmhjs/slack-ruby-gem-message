@@ -39,13 +39,9 @@ module ResponseType
 end
 
 class Hash
-    @message_type_cache = nil
-
     def message_type()
         ResponseType::RawValues::TYPES.each { |type|
-            if ResponseType::message_type_of?(self, type)
-                return type
-            end
+            return type if ResponseType::message_type_of?(self, type)
         }
         ResponseType::RawValues::UNKNOWN
     end
@@ -55,17 +51,8 @@ class Hash
     end
 
     def to_model()
-        # If not cached
-        if @message_type_cache.nil?
-            @message_type_cache = self.message_type
-            if @message_type_cache.nil?
-                p "No type found"
-                return nil
-            end
-        end
-
         message = SlackMessage.new(self)
-        message.message_type = @message_type_cache
+        message.message_type = self.message_type
 
         message
     end
