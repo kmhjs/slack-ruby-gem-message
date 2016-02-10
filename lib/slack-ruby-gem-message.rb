@@ -12,10 +12,12 @@ module ResponseType
         REACTION = :reaction
         BOT      = :bot
 
-        TYPES = [UNKNOWN, NORMAL, EDIT, SUBTYPE, HIDDEN, DELETED, REACTION, BOT]
+        def self.all
+            self.constants.map{|name| self.const_get(name) }
+        end
     end
 
-    REQUIRED_KEYS = {
+    REQUIRED_FIELDS = {
         # DELETED is an element of SUBTYPE
         RawValues::UNKNOWN  => [],
         RawValues::NORMAL   => [:type, :channel, :user, :text, :ts, :team],
@@ -28,8 +30,8 @@ module ResponseType
     }
 
     def self.required_fields_for(type)
-        return REQUIRED_KEYS[type] if ResponseType::RawValues::TYPES.include?(type)
-        REQUIRED_KEYS[RawValues::UNKNOWN]
+        return REQUIRED_FIELDS[type] if ResponseType::RawValues.all.include?(type)
+        REQUIRED_FIELDS[RawValues::UNKNOWN]
     end
 
     def self.message_type_of?(message_hash, type)
@@ -40,7 +42,7 @@ end
 
 class Hash
     def message_type()
-        ResponseType::RawValues::TYPES.each { |type|
+        ResponseType::RawValues.all.each { |type|
             return type if ResponseType::message_type_of?(self, type)
         }
         ResponseType::RawValues::UNKNOWN

@@ -132,3 +132,10 @@ RSpec.describe 'MessageMapping' do
         expect(comp).to eq true
     end
 end
+
+
+RSpec.describe 'Type definition' do
+    it 'raw values mapped to required keys' do
+        expect(ResponseType::RawValues.all.sort()).to eq ResponseType::REQUIRED_FIELDS.keys.sort()
+    end
+end
