@@ -13,7 +13,7 @@ module ResponseType
         BOT      = :bot
 
         def self.all
-            self.constants.map{|name| self.const_get(name) }
+            self.constants.map { |name| self.const_get(name) }
         end
     end
 
