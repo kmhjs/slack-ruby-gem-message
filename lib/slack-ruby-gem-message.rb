@@ -34,8 +34,6 @@ module ResponseType
 
     def self.message_type_of?(message_hash, type)
         required_fields = ResponseType::required_fields_for(type)
-
-        return (type == RawValues::UNKNOWN) if required_fields.empty?
         (required_fields.map { |e| e.to_s }).sort == message_hash.keys.sort
     end
 end
@@ -50,6 +48,7 @@ class Hash
                 return type
             end
         }
+        ResponseType::RawValues::UNKNOWN
     end
 
     def message_type_of?(type)
