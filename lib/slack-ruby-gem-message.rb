@@ -1,8 +1,16 @@
-require 'ostruct'
-
 class SlackMessage < Struct
     attr_accessor :message_type
     @message_type = nil
+end
+
+module UnknownSlackMessage
+    def self.create(field_symbols)
+        eval("Struct.new('Unknown', :" + field_symbols.join(', :') + ")")
+    end
+
+    def self.members
+        []
+    end
 end
 
 module ResponseType
@@ -24,7 +32,7 @@ module ResponseType
 
     MODELS = {
         # DELETED is an element of SUBTYPE
-        RawValues::UNKNOWN  => SlackMessage.new('Unknown'),
+        RawValues::UNKNOWN  => UnknownSlackMessage,
         RawValues::NORMAL   => SlackMessage.new('Normal',   :type, :channel, :user, :text, :ts, :team),
         RawValues::EDIT     => SlackMessage.new('Edit',     :type, :channel, :user, :text, :ts, :edited),
         RawValues::SUBTYPE  => SlackMessage.new('Subtype',  :type, :subtype, :text, :ts, :user),
@@ -36,7 +44,6 @@ module ResponseType
 
     def self.required_fields_for(type)
         return MODELS[type].members if ResponseType::RawValues.all.include?(type)
-        MODELS[RawValues::UNKNOWN].members
     end
 
     def self.message_type_of?(message_hash, type)
@@ -58,12 +65,16 @@ class Hash
     end
 
     def to_model()
-        #message = SlackMessage.new(self)
-        #message.message_type = self.message_type
+        type = message_type
 
-        #message
+        if type == ResponseType::RawValues::UNKNOWN
+            struct = ResponseType::MODELS[message_type].create(self.keys)
+            model = struct.new()
 
-        model = ResponseType::MODELS[message_type].new()
+        else
+            model = ResponseType::MODELS[message_type].new()
+        end
+
         model.members.each { |member|
             model[member] = self[member.to_s]
         }
