@@ -1,18 +1,3 @@
-class SlackMessage < Struct
-    attr_accessor :message_type
-    @message_type = nil
-end
-
-module UnknownSlackMessage
-    def self.create(field_symbols)
-        eval("Struct.new('Unknown', :" + field_symbols.join(', :') + ")")
-    end
-
-    def self.members
-        []
-    end
-end
-
 module ResponseType
     # Message types are defined in https://api.slack.com/events/message
     module RawValues
@@ -27,6 +12,21 @@ module ResponseType
 
         def self.all
             self.constants.map { |name| self.const_get(name) }
+        end
+    end
+
+    class SlackMessage < Struct
+        attr_accessor :message_type
+        @message_type = nil
+    end
+
+    module UnknownSlackMessage
+        def self.create(field_symbols)
+            eval("Struct.new('Unknown', :" + field_symbols.join(', :') + ")")
+        end
+
+        def self.members
+            []
         end
     end
 
