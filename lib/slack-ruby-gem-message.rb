@@ -1,5 +1,10 @@
 require 'ostruct'
 
+class SlackMessage < Struct
+    attr_accessor :message_type
+    @message_type = nil
+end
+
 module ResponseType
     # Message types are defined in https://api.slack.com/events/message
     module RawValues
@@ -17,21 +22,21 @@ module ResponseType
         end
     end
 
-    REQUIRED_FIELDS = {
+    MODELS = {
         # DELETED is an element of SUBTYPE
-        RawValues::UNKNOWN  => [],
-        RawValues::NORMAL   => [:type, :channel, :user, :text, :ts, :team],
-        RawValues::EDIT     => [:type, :channel, :user, :text, :ts, :edited],
-        RawValues::SUBTYPE  => [:type, :subtype, :text, :ts, :user],
-        RawValues::HIDDEN   => [:type, :subtype, :hidden, :channel, :ts, :deleted_ts, :event_ts],
-        RawValues::DELETED  => [:type, :deleted_ts, :subtype, :hidden, :channel, :previous_message, :event_ts, :ts],
-        RawValues::REACTION => [:type, :channel, :user, :text, :ts, :is_starred, :pinned_to, :reactions],
-        RawValues::BOT      => [:text, :username, :icons, :type, :subtype, :channel, :ts]
+        RawValues::UNKNOWN  => SlackMessage.new('Unknown'),
+        RawValues::NORMAL   => SlackMessage.new('Normal',   :type, :channel, :user, :text, :ts, :team),
+        RawValues::EDIT     => SlackMessage.new('Edit',     :type, :channel, :user, :text, :ts, :edited),
+        RawValues::SUBTYPE  => SlackMessage.new('Subtype',  :type, :subtype, :text, :ts, :user),
+        RawValues::HIDDEN   => SlackMessage.new('Hidden',   :type, :subtype, :hidden, :channel, :ts, :deleted_ts, :event_ts),
+        RawValues::DELETED  => SlackMessage.new('Deleted',  :type, :deleted_ts, :subtype, :hidden, :channel, :previous_message, :event_ts, :ts),
+        RawValues::REACTION => SlackMessage.new('Reaction', :type, :channel, :user, :text, :ts, :is_starred, :pinned_to, :reactions),
+        RawValues::BOT      => SlackMessage.new('Bot',      :text, :username, :icons, :type, :subtype, :channel, :ts)
     }
 
     def self.required_fields_for(type)
-        return REQUIRED_FIELDS[type] if ResponseType::RawValues.all.include?(type)
-        REQUIRED_FIELDS[RawValues::UNKNOWN]
+        return MODELS[type].members if ResponseType::RawValues.all.include?(type)
+        MODELS[RawValues::UNKNOWN].members
     end
 
     def self.message_type_of?(message_hash, type)
@@ -53,14 +58,15 @@ class Hash
     end
 
     def to_model()
-        message = SlackMessage.new(self)
-        message.message_type = self.message_type
+        #message = SlackMessage.new(self)
+        #message.message_type = self.message_type
 
-        message
+        #message
+
+        model = ResponseType::MODELS[message_type].new()
+        model.members.each { |member|
+            model[member] = self[member.to_s]
+        }
+        model
     end
-end
-
-class SlackMessage < OpenStruct
-    attr_accessor :message_type
-    @message_type = nil
 end
