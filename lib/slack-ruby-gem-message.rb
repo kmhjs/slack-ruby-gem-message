@@ -44,6 +44,7 @@ module ResponseType
 
     def self.required_fields_for(type)
         return MODELS[type].members if ResponseType::RawValues.all.include?(type)
+        MODELS[RawValues::UNKNOWN].members
     end
 
     def self.message_type_of?(message_hash, type)
