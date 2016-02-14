@@ -5,6 +5,7 @@ module ResponseType
         NORMAL   = :normal
         EDIT     = :edit
         SUBTYPE  = :subtype
+        LAST_LOG = :last_log
         HIDDEN   = :hidden
         DELETED  = :deleted
         REACTION = :reaction
@@ -33,13 +34,14 @@ module ResponseType
     MODELS = {
         # DELETED is an element of SUBTYPE
         RawValues::UNKNOWN  => UnknownSlackMessage,
-        RawValues::NORMAL   => SlackMessage.new('Normal',   :type, :channel, :user, :text, :ts, :team),
-        RawValues::EDIT     => SlackMessage.new('Edit',     :type, :channel, :user, :text, :ts, :edited),
-        RawValues::SUBTYPE  => SlackMessage.new('Subtype',  :type, :subtype, :text, :ts, :user),
-        RawValues::HIDDEN   => SlackMessage.new('Hidden',   :type, :subtype, :hidden, :channel, :ts, :deleted_ts, :event_ts),
-        RawValues::DELETED  => SlackMessage.new('Deleted',  :type, :deleted_ts, :subtype, :hidden, :channel, :previous_message, :event_ts, :ts),
-        RawValues::REACTION => SlackMessage.new('Reaction', :type, :channel, :user, :text, :ts, :is_starred, :pinned_to, :reactions),
-        RawValues::BOT      => SlackMessage.new('Bot',      :text, :username, :icons, :type, :subtype, :channel, :ts)
+        RawValues::NORMAL   => SlackMessage.new('Normal',   :type, :channel,           :user, :text, :ts, :team),
+        RawValues::EDIT     => SlackMessage.new('Edit',     :type, :channel,           :user, :text, :ts, :edited),
+        RawValues::LAST_LOG => SlackMessage.new('LastLog',  :type, :channel,           :user, :text, :ts, :reply_to),
+        RawValues::SUBTYPE  => SlackMessage.new('Subtype',  :type,           :subtype, :user, :text, :ts),
+        RawValues::BOT      => SlackMessage.new('Bot',      :type, :channel, :subtype,        :text, :ts, :username, :icons),
+        RawValues::HIDDEN   => SlackMessage.new('Hidden',   :type, :channel, :subtype,               :ts, :hidden, :deleted_ts, :event_ts),
+        RawValues::DELETED  => SlackMessage.new('Deleted',  :type, :channel, :subtype,               :ts, :hidden, :deleted_ts, :event_ts, :previous_message),
+        RawValues::REACTION => SlackMessage.new('Reaction', :type, :channel,           :user, :text, :ts, :is_starred, :pinned_to, :reactions)
     }
 
     def self.required_fields_for(type)
