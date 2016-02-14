@@ -3,12 +3,9 @@ require_relative '../lib/slack-ruby-gem-message.rb'
 RSpec.describe 'MessageType' do
     it 'data specified as unknown message' do
         data = {
-            "reply_to" => 0,
-            "type" => "",
-            "channel" => "",
-            "user" => "",
-            "text" => "",
-            "ts" => ""
+            "field1" => 0,
+            "field2" => "",
+            "field3" => ""
         }
         expect(data.message_type).to eq ResponseType::RawValues::UNKNOWN
     end
@@ -23,6 +20,18 @@ RSpec.describe 'MessageType' do
             "team" => ""
         }
         expect(data.message_type).to eq ResponseType::RawValues::NORMAL
+    end
+
+    it 'data specified as last_log message' do
+        data = {
+            "reply_to" => "",
+            "type" => "",
+            "channel" => "",
+            "user" => "",
+            "text" => "",
+            "ts" => ""
+        }
+        expect(data.message_type).to eq ResponseType::RawValues::LAST_LOG
     end
 
     it 'data specified as deleted message' do
