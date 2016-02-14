@@ -67,6 +67,31 @@ RSpec.describe 'MessageType' do
         }
         expect(data.message_type).to eq ResponseType::RawValues::BOT
     end
+
+    it 'data specified as normal message with no team info' do
+        data = {
+            "type" => "",
+            "user" => "",
+            "text" => "",
+            "channel" => "",
+            "ts" => ""
+        }
+        expect(data.message_type).to eq ResponseType::RawValues::NORMAL_NO_TEAM
+    end
+
+    it 'data specidied as link info' do
+        data = {
+            "type" => "",
+            "message" => "",
+            "subtype" => "",
+            "hidden" => "",
+            "channel" => "",
+            "previous_message" => "",
+            "event_ts" => "",
+            "ts" => ""
+        }
+        expect(data.message_type).to eq ResponseType::RawValues::LINK_INFO
+    end
 end
 
 RSpec.describe 'MessageMapping' do

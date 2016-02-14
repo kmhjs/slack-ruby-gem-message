@@ -1,15 +1,17 @@
 module ResponseType
     # Message types are defined in https://api.slack.com/events/message
     module RawValues
-        UNKNOWN  = :unknown
-        NORMAL   = :normal
-        EDIT     = :edit
-        SUBTYPE  = :subtype
-        LAST_LOG = :last_log
-        HIDDEN   = :hidden
-        DELETED  = :deleted
-        REACTION = :reaction
-        BOT      = :bot
+        UNKNOWN        = :unknown
+        NORMAL         = :normal
+        NORMAL_NO_TEAM = :normal_no_team
+        EDIT           = :edit
+        SUBTYPE        = :subtype
+        LAST_LOG       = :last_log
+        HIDDEN         = :hidden
+        DELETED        = :deleted
+        LINK_INFO      = :link_info
+        REACTION       = :reaction
+        BOT            = :bot
 
         def self.all
             self.constants.map { |name| self.const_get(name) }
@@ -33,15 +35,17 @@ module ResponseType
 
     MODELS = {
         # DELETED is an element of SUBTYPE
-        RawValues::UNKNOWN  => UnknownSlackMessage,
-        RawValues::NORMAL   => SlackMessage.new('Normal',   :type, :channel,           :user, :text, :ts, :team),
-        RawValues::EDIT     => SlackMessage.new('Edit',     :type, :channel,           :user, :text, :ts, :edited),
-        RawValues::LAST_LOG => SlackMessage.new('LastLog',  :type, :channel,           :user, :text, :ts, :reply_to),
-        RawValues::SUBTYPE  => SlackMessage.new('Subtype',  :type,           :subtype, :user, :text, :ts),
-        RawValues::BOT      => SlackMessage.new('Bot',      :type, :channel, :subtype,        :text, :ts, :username, :icons),
-        RawValues::HIDDEN   => SlackMessage.new('Hidden',   :type, :channel, :subtype,               :ts, :hidden, :deleted_ts, :event_ts),
-        RawValues::DELETED  => SlackMessage.new('Deleted',  :type, :channel, :subtype,               :ts, :hidden, :deleted_ts, :event_ts, :previous_message),
-        RawValues::REACTION => SlackMessage.new('Reaction', :type, :channel,           :user, :text, :ts, :is_starred, :pinned_to, :reactions)
+        RawValues::UNKNOWN        => UnknownSlackMessage,
+        RawValues::NORMAL         => SlackMessage.new('Normal',         :type, :channel,           :user, :text, :ts, :team),
+        RawValues::NORMAL_NO_TEAM => SlackMessage.new('Normal_no_team', :type, :channel,           :user, :text, :ts),
+        RawValues::EDIT           => SlackMessage.new('Edit',           :type, :channel,           :user, :text, :ts, :edited),
+        RawValues::LAST_LOG       => SlackMessage.new('LastLog',        :type, :channel,           :user, :text, :ts, :reply_to),
+        RawValues::SUBTYPE        => SlackMessage.new('Subtype',        :type,           :subtype, :user, :text, :ts),
+        RawValues::BOT            => SlackMessage.new('Bot',            :type, :channel, :subtype,        :text, :ts, :username, :icons),
+        RawValues::HIDDEN         => SlackMessage.new('Hidden',         :type, :channel, :subtype,               :ts, :hidden, :deleted_ts, :event_ts),
+        RawValues::LINK_INFO      => SlackMessage.new('Link_info',      :type, :channel, :subtype,               :ts, :hidden,              :event_ts, :previous_message, :message),
+        RawValues::DELETED        => SlackMessage.new('Deleted',        :type, :channel, :subtype,               :ts, :hidden, :deleted_ts, :event_ts, :previous_message),
+        RawValues::REACTION       => SlackMessage.new('Reaction',       :type, :channel,           :user, :text, :ts, :is_starred, :pinned_to, :reactions)
     }
 
     def self.required_fields_for(type)
