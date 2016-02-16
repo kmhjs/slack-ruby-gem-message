@@ -10,7 +10,7 @@ module Response
     #
     module Type
         # Definition JSON file
-        DEFINITION_FILE = '../config/types.json'
+        DEFINITION_FILE = File.expand_path('../../config/types.json', __FILE__)
 
         # Definition of models
         MODEL_DEFINITION = open(DEFINITION_FILE) { |io| JSON.load(io) }
