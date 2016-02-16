@@ -1,90 +1,101 @@
-module ResponseType
-    # Message types are defined in https://api.slack.com/events/message
-    module RawValues
-        UNKNOWN        = :unknown
-        NORMAL         = :normal
-        NORMAL_NO_TEAM = :normal_no_team
-        EDIT           = :edit
-        SUBTYPE        = :subtype
-        LAST_LOG       = :last_log
-        HIDDEN         = :hidden
-        DELETED        = :deleted
-        LINK_INFO      = :link_info
-        REACTION       = :reaction
-        BOT            = :bot
+require 'json'
 
-        def self.all
-            self.constants.map { |name| self.const_get(name) }
+#
+# A module for define type, generate struct, and mapping.
+#
+module Response
+    #
+    # A module for type definition and validation.
+    # Definitions are defined in JSON file.
+    #
+    module Type
+        # Definition JSON file
+        DEFINITION_FILE = '../config/types.json'
+
+        # Definition of models
+        MODEL_DEFINITION = open(DEFINITION_FILE) { |io| JSON.load(io) }
+
+        # Returns defined types list.
+        def self.types
+            MODEL_DEFINITION.keys
+        end
+
+        # Returns sorted fields for type.
+        # If not defined type was given, empty list will be returned.
+        def self.fields_for(type)
+            MODEL_DEFINITION[type].to_a.sort
+        end
+
+        # Validates the type is defined or not.
+        def self.defined?(type)
+            self.types.include?(type)
         end
     end
 
-    class SlackMessage < Struct
-        attr_accessor :message_type
-        @message_type = nil
-    end
-
-    module UnknownSlackMessage
-        def self.create(field_symbols)
-            eval("Struct.new('Unknown', :" + field_symbols.join(', :') + ")")
-        end
-
-        def self.members
-            []
+    #
+    # A module for generating Struct class for given fields.
+    # Members of Struct class are given fields and :struct_type.
+    # :struct_type will contain the type name of Struct.
+    #
+    module StructGenerator
+        # Returns Struct class which have members defined in fields and
+        # :struct_type.
+        def self.generate(fields)
+            eval('Struct.new(:struct_type, "' + fields.join('", "') + '")')
         end
     end
 
-    MODELS = {
-        # DELETED is an element of SUBTYPE
-        RawValues::UNKNOWN        => UnknownSlackMessage,
-        RawValues::NORMAL         => SlackMessage.new('Normal',         :type, :channel,           :user, :text, :ts, :team),
-        RawValues::NORMAL_NO_TEAM => SlackMessage.new('Normal_no_team', :type, :channel,           :user, :text, :ts),
-        RawValues::EDIT           => SlackMessage.new('Edit',           :type, :channel,           :user, :text, :ts, :edited),
-        RawValues::LAST_LOG       => SlackMessage.new('LastLog',        :type, :channel,           :user, :text, :ts, :reply_to),
-        RawValues::SUBTYPE        => SlackMessage.new('Subtype',        :type,           :subtype, :user, :text, :ts),
-        RawValues::BOT            => SlackMessage.new('Bot',            :type, :channel, :subtype,        :text, :ts, :username, :icons),
-        RawValues::HIDDEN         => SlackMessage.new('Hidden',         :type, :channel, :subtype,               :ts, :hidden, :deleted_ts, :event_ts),
-        RawValues::LINK_INFO      => SlackMessage.new('Link_info',      :type, :channel, :subtype,               :ts, :hidden,              :event_ts, :previous_message, :message),
-        RawValues::DELETED        => SlackMessage.new('Deleted',        :type, :channel, :subtype,               :ts, :hidden, :deleted_ts, :event_ts, :previous_message),
-        RawValues::REACTION       => SlackMessage.new('Reaction',       :type, :channel,           :user, :text, :ts, :is_starred, :pinned_to, :reactions)
-    }
+    #
+    # A module for mapping to type and struct from hash.
+    #
+    module Mapper
+        # Returns type of given hash.
+        # If type of hash is not defined, 'Unknown' will be returned.
+        def self.to_type(hash)
+            fields = hash.keys.sort
 
-    def self.required_fields_for(type)
-        return MODELS[type].members if ResponseType::RawValues.all.include?(type)
-        MODELS[RawValues::UNKNOWN].members
-    end
+            # Look up
+            type = Type.types.select { |t|
+                fields == Type.fields_for(t)
+            }.first
 
-    def self.message_type_of?(message_hash, type)
-        required_fields = ResponseType::required_fields_for(type)
-        (required_fields.map { |e| e.to_s }).sort == message_hash.keys.sort
+            type.nil? ? "Unknown" : type
+        end
+
+        # Convert hash into Struct class instance.
+        def self.to_struct(hash)
+            type = self.to_type(hash)
+            fields = Type.fields_for(type)
+
+            model = StructGenerator.generate(fields)
+
+            instance = fields.inject(model.new) { |m, f|
+                m[f] = hash[f]
+                m
+            }
+            instance.struct_type = type
+
+            instance
+        end
     end
 end
 
+#
+# A class extension of Hash class for Slack response object.
+#
 class Hash
-    def message_type()
-        ResponseType::RawValues.all.each { |type|
-            return type if ResponseType::message_type_of?(self, type)
-        }
-        ResponseType::RawValues::UNKNOWN
+    # Validates the hash is defined type or not.
+    def is_type_of(type)
+        self.keys.sort == Response::Type.fields_for(type)
     end
 
-    def message_type_of?(type)
-        ResponseType::message_type_of?(self, type)
+    # Returns type for hash structure.
+    def type
+        Response::Mapper.to_type(self)
     end
 
-    def to_model()
-        type = message_type
-
-        if type == ResponseType::RawValues::UNKNOWN
-            struct = ResponseType::MODELS[message_type].create(self.keys)
-            model = struct.new()
-
-        else
-            model = ResponseType::MODELS[message_type].new()
-        end
-
-        model.members.each { |member|
-            model[member] = self[member.to_s]
-        }
-        model
+    # Converts into struct mapped object.
+    def to_struct
+        Response::Mapper.to_struct(self)
     end
 end
