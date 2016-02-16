@@ -1,0 +1,89 @@
+{
+    "Unknown": [],
+    "Normal": [
+        "type",
+        "channel",
+        "user",
+        "text",
+        "ts",
+        "team"
+    ],
+    "NormalWithoutTeam": [
+        "type",
+        "channel",
+        "user",
+        "text",
+        "ts"
+    ],
+    "Edit": [
+        "type",
+        "channel",
+        "user",
+        "text",
+        "ts",
+        "edited"
+    ],
+    "Subtype": [
+        "type",
+        "subtype",
+        "user",
+        "text",
+        "ts"
+    ],
+    "LastLog": [
+        "type",
+        "channel",
+        "user",
+        "text",
+        "ts",
+        "reply_to"
+    ],
+    "Hidden": [
+        "type",
+        "channel",
+        "subtype",
+        "ts",
+        "hidden",
+        "deleted_ts",
+        "event_ts"
+    ],
+    "Deleted": [
+        "type",
+        "channel",
+        "subtype",
+        "ts",
+        "hidden",
+        "deleted_ts",
+        "event_ts",
+        "previous_message"
+    ],
+    "LinkInfo": [
+        "type",
+        "channel",
+        "subtype",
+        "ts",
+        "hidden",
+        "event_ts",
+        "previous_message",
+        "message"
+    ],
+    "Reaction": [
+        "type",
+        "channel",
+        "user",
+        "text",
+        "ts",
+        "is_starred",
+        "pinned_to",
+        "reactions"
+    ],
+    "Bot": [
+        "type",
+        "channel",
+        "subtype",
+        "text",
+        "ts",
+        "username",
+        "icons"
+    ]
+}
