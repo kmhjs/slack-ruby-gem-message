@@ -1,20 +1,5 @@
 require 'json'
 
-class SlackMessage < Struct
-    attr_accessor :message_type
-    @message_type = nil
-end
-
-module UnknownSlackMessage
-    def self.create(field_symbols)
-        eval("Struct.new('Unknown', :" + field_symbols.join(', :') + ")")
-    end
-
-    def self.members
-        []
-    end
-end
-
 module ResponseType
     MODEL_DEFINITION = open('../config/types.json') { |io| JSON.load(io) }
 
@@ -33,7 +18,7 @@ end
 
 module ResponseModelGenerator
     def self.create(fields)
-        eval('Struct.new(:model_type, "' + fields.join('", "') + '")')
+        eval('Struct.new(:struct_type, "' + fields.join('", "') + '")')
     end
 end
 
@@ -59,7 +44,7 @@ module ResponseMapper
             m[f] = hash[f]
             m
         }
-        instance.model_type = type
+        instance.struct_type = type
 
         instance
     end

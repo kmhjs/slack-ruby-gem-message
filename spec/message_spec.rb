@@ -45,7 +45,7 @@ RSpec.describe 'ResponseMapper' do
                 f &&= (instance[field] == sample_hash[field])
                 f
             }
-            flag &&= (instance[:model_type] == type)
+            flag &&= (instance[:struct_type] == type)
             flag
         }
         expect(result).to eq true
@@ -58,7 +58,7 @@ RSpec.describe 'ResponseModelGenerator' do
             model = ResponseModelGenerator.create(fields)
 
             expected_fields = fields.map { |v| v.to_sym }
-            expected_fields << :model_type
+            expected_fields << :struct_type
 
             flag &&= (model.members.sort == expected_fields.sort)
             flag
@@ -96,7 +96,7 @@ RSpec.describe 'Hash extension' do
                 f &&= (instance[field] == sample_hash[field])
                 f
             }
-            flag &&= (instance[:model_type] == type)
+            flag &&= (instance[:struct_type] == type)
             flag
         }
         expect(result).to eq true
