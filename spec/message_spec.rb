@@ -52,10 +52,10 @@ RSpec.describe 'ResponseMapper' do
     end
 end
 
-RSpec.describe 'ResponseModelGenerator' do
-    it 'create model' do
+RSpec.describe 'ResponseStructGenerator' do
+    it 'generate model' do
         result = MODEL_DEFINITIONS.inject(true) { |flag, (_, fields)|
-            model = Response::ModelGenerator.create(fields)
+            model = Response::StructGenerator.generate(fields)
 
             expected_fields = fields.map { |v| v.to_sym }
             expected_fields << :struct_type

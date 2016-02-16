@@ -19,8 +19,8 @@ module Response
         end
     end
 
-    module ModelGenerator
-        def self.create(fields)
+    module StructGenerator
+        def self.generate(fields)
             eval('Struct.new(:struct_type, "' + fields.join('", "') + '")')
         end
     end
@@ -41,7 +41,7 @@ module Response
             type = self.to_type(hash)
             fields = Type.fields_for(type)
 
-            model = ModelGenerator.create(fields)
+            model = StructGenerator.generate(fields)
 
             instance = fields.inject(model.new) { |m, f|
                 m[f] = hash[f]
