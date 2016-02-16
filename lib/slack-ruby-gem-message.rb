@@ -49,7 +49,7 @@ module ResponseMapper
         type.nil? ? "Unknown" : type
     end
 
-    def self.to_model(hash)
+    def self.to_struct(hash)
         type = self.to_type(hash)
         fields = ResponseType.fields_for(type)
 
@@ -74,7 +74,7 @@ class Hash
         ResponseMapper.to_type(self)
     end
 
-    def to_model()
-        ResponseMapper.to_model(self)
+    def to_struct()
+        ResponseMapper.to_struct(self)
     end
 end

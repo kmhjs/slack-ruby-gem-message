@@ -39,7 +39,7 @@ RSpec.describe 'ResponseMapper' do
     it 'maps to instance' do
         result = MODEL_DEFINITIONS.inject(true) { |flag, (type, fields)|
             sample_hash = fields.inject({}) { |h, k| h[k] = ''; h }
-            instance = ResponseMapper.to_model(sample_hash)
+            instance = ResponseMapper.to_struct(sample_hash)
 
             flag &&= fields.inject(true) { |f, field|
                 f &&= (instance[field] == sample_hash[field])
@@ -90,7 +90,7 @@ RSpec.describe 'Hash extension' do
     it 'mapped to instance' do
         result = MODEL_DEFINITIONS.inject(true) { |flag, (type, fields)|
             sample_hash = fields.inject({}) { |h, k| h[k] = ''; h }
-            instance = sample_hash.to_model
+            instance = sample_hash.to_struct
 
             flag &&= fields.inject(true) { |f, field|
                 f &&= (instance[field] == sample_hash[field])
