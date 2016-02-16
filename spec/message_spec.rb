@@ -25,12 +25,65 @@ RSpec.describe 'ResponseType' do
     end
 end
 
+RSpec.describe 'ResponseMapper' do
+    it 'returns type' do
+        result = MODEL_DEFINITIONS.inject(true) { |flag, (type, fields)|
+            sample_hash = fields.inject({}) { |h, k| h[k] = ''; h }
+            flag &&= (type == ResponseMapper.to_type(sample_hash))
+            flag
+        }
+        result &&= (ResponseMapper.to_type({}) == 'Unknown')
+        expect(result).to eq true
+    end
+
+    it 'maps to instance' do
+        result = MODEL_DEFINITIONS.inject(true) { |flag, (type, fields)|
+            sample_hash = fields.inject({}) { |h, k| h[k] = ''; h }
+            instance = ResponseMapper.to_model(sample_hash)
+
+            flag &&= fields.inject(true) { |f, field|
+                f &&= (instance[field] == sample_hash[field])
+                f
+            }
+            flag &&= (instance[:model_type] == type)
+            flag
+        }
+        expect(result).to eq true
+    end
+end
+
+RSpec.describe 'ResponseModelGenerator' do
+    it 'create model' do
+        result = MODEL_DEFINITIONS.inject(true) { |flag, (_, fields)|
+            model = ResponseModelGenerator.create(fields)
+
+            expected_fields = fields.map { |v| v.to_sym }
+            expected_fields << :model_type
+
+            flag &&= (model.members.sort == expected_fields.sort)
+            flag
+        }
+        expect(result).to eq true
+    end
+end
+
 RSpec.describe 'Hash extension' do
     it 'identifies type' do
         result = MODEL_DEFINITIONS.inject(true) { |flag, (type, fields)|
             sample_hash = fields.inject({}) { |h, k| h[k] = ''; h }
             flag &&= sample_hash.is_type_of(type)
+            flag
         }
+        expect(result).to eq true
+    end
+
+    it 'returns type' do
+        result = MODEL_DEFINITIONS.inject(true) { |flag, (type, fields)|
+            sample_hash = fields.inject({}) { |h, k| h[k] = ''; h }
+            flag &&= (type == sample_hash.type)
+            flag
+        }
+        result &&= ({}.type == 'Unknown')
         expect(result).to eq true
     end
 end
