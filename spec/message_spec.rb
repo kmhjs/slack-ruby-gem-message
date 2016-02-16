@@ -5,12 +5,12 @@ MODEL_DEFINITIONS = open('../config/types.json') { |io| JSON.load(io) }
 
 RSpec.describe 'ResponseType' do
     it 'returns whole defined values' do
-        expect(ResponseType.types).to eq MODEL_DEFINITIONS.keys
+        expect(Response::Type.types).to eq MODEL_DEFINITIONS.keys
     end
 
     it 'returns whole fields' do
         result = MODEL_DEFINITIONS.inject(true) { |flag, (type, fields)|
-            flag &&= (fields.sort == ResponseType.fields_for(type))
+            flag &&= (fields.sort == Response::Type.fields_for(type))
             flag
         }
         expect(result).to eq true
@@ -18,7 +18,7 @@ RSpec.describe 'ResponseType' do
 
     it 'validate type' do
         result = MODEL_DEFINITIONS.inject(true) { |flag, (type, _)|
-            flag &&= ResponseType.defined?(type)
+            flag &&= Response::Type.defined?(type)
             flag
         }
         expect(result).to eq true
@@ -29,17 +29,17 @@ RSpec.describe 'ResponseMapper' do
     it 'returns type' do
         result = MODEL_DEFINITIONS.inject(true) { |flag, (type, fields)|
             sample_hash = fields.inject({}) { |h, k| h[k] = ''; h }
-            flag &&= (type == ResponseMapper.to_type(sample_hash))
+            flag &&= (type == Response::Mapper.to_type(sample_hash))
             flag
         }
-        result &&= (ResponseMapper.to_type({}) == 'Unknown')
+        result &&= (Response::Mapper.to_type({}) == 'Unknown')
         expect(result).to eq true
     end
 
     it 'maps to instance' do
         result = MODEL_DEFINITIONS.inject(true) { |flag, (type, fields)|
             sample_hash = fields.inject({}) { |h, k| h[k] = ''; h }
-            instance = ResponseMapper.to_struct(sample_hash)
+            instance = Response::Mapper.to_struct(sample_hash)
 
             flag &&= fields.inject(true) { |f, field|
                 f &&= (instance[field] == sample_hash[field])
@@ -55,7 +55,7 @@ end
 RSpec.describe 'ResponseModelGenerator' do
     it 'create model' do
         result = MODEL_DEFINITIONS.inject(true) { |flag, (_, fields)|
-            model = ResponseModelGenerator.create(fields)
+            model = Response::ModelGenerator.create(fields)
 
             expected_fields = fields.map { |v| v.to_sym }
             expected_fields << :struct_type
