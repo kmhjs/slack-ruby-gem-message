@@ -9,10 +9,11 @@ module Response
     # Definitions are defined in JSON file.
     #
     module Type
+        # Definition JSON file
+        DEFINITION_FILE = '../config/types.json'
+
         # Definition of models
-        MODEL_DEFINITION = open('../config/types.json') { |io|
-            JSON.load(io)
-        }
+        MODEL_DEFINITION = open(DEFINITION_FILE) { |io| JSON.load(io) }
 
         # Returns defined types list.
         def self.types
