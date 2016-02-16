@@ -73,4 +73,8 @@ class Hash
     def type()
         ResponseMapper.to_type(self)
     end
+
+    def to_model()
+        ResponseMapper.to_model(self)
+    end
 end

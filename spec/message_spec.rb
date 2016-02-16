@@ -86,6 +86,21 @@ RSpec.describe 'Hash extension' do
         result &&= ({}.type == 'Unknown')
         expect(result).to eq true
     end
+
+    it 'mapped to instance' do
+        result = MODEL_DEFINITIONS.inject(true) { |flag, (type, fields)|
+            sample_hash = fields.inject({}) { |h, k| h[k] = ''; h }
+            instance = sample_hash.to_model
+
+            flag &&= fields.inject(true) { |f, field|
+                f &&= (instance[field] == sample_hash[field])
+                f
+            }
+            flag &&= (instance[:model_type] == type)
+            flag
+        }
+        expect(result).to eq true
+    end
 end
 
 #RSpec.describe 'MessageType' do
